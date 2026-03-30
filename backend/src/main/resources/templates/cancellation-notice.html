@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; background: #f4f4f4; padding: 20px;">
+    <div style="background: #c0392b; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h1 style="margin: 0; font-size: 24px;">SkyWings Airways</h1>
+        <p style="margin: 5px 0 0;">Booking Cancellation</p>
+    </div>
+    <div style="padding: 30px; background: white; border-radius: 0 0 8px 8px;">
+        <h2 style="color: #c0392b;">Your booking has been cancelled</h2>
+
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 15px 0;">
+            <p style="margin: 5px 0;"><strong>Flight:</strong>
+                <span th:text="${flight.flightNumber}">SW-101</span></p>
+            <p style="margin: 5px 0;"><strong>Route:</strong>
+                <span th:text="${flight.origin + ' → ' + flight.destination}">Delhi → Mumbai</span></p>
+            <p style="margin: 5px 0;"><strong>Original Total:</strong> Rs
+                <span th:text="${booking.totalPrice}">30,712.50</span></p>
+            <p style="margin: 5px 0; color: #c0392b;"><strong>Cancellation Penalty (25%):</strong> Rs
+                <span th:text="${penalty}">7,678.13</span></p>
+        </div>
+
+        <p>The cancellation penalty has been applied. If you believe this is an error,
+           please contact our support team.</p>
+
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="color: #888; font-size: 12px;">
+            This is a simulated booking for demonstration purposes. No real payment was charged or refunded.
+        </p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,80 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: skywings-airways
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/skywings
+    username: skywings
+    password: skywings_dev
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000
+
+  mail:
+    host: smtp.sendgrid.net
+    port: 587
+    username: apikey
+    password: ${SENDGRID_API_KEY:placeholder}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  sql:
+    init:
+      mode: always
+
+jwt:
+  secret: ${JWT_SECRET:my-256-bit-secret-key-for-dev-only-change-in-prod-must-be-32-chars-long}
+  access-token-expiry: 1800000
+  refresh-token-expiry: 604800000
+
+twilio:
+  account-sid: ${TWILIO_ACCOUNT_SID:placeholder}
+  auth-token: ${TWILIO_AUTH_TOKEN:placeholder}
+  phone-number: ${TWILIO_PHONE_NUMBER:placeholder}
+
+amadeus:
+  api-key: ${AMADEUS_API_KEY:placeholder}
+  api-secret: ${AMADEUS_API_SECRET:placeholder}
+  environment: test
+
+skywings:
+  booking:
+    expiry-minutes: 15
+    max-seats-per-booking: 6
+  otp:
+    length: 6
+    ttl-minutes: 5
+    max-attempts: 3
+    max-resends: 3
+  payment:
+    simulation-mode: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html

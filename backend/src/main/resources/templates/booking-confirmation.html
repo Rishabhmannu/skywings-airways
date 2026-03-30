@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; background: #f4f4f4; padding: 20px;">
+    <div style="background: #1e3a5f; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h1 style="margin: 0; font-size: 24px;">SkyWings Airways</h1>
+        <p style="margin: 5px 0 0;">Booking Confirmation</p>
+    </div>
+    <div style="padding: 30px; background: white; border-radius: 0 0 8px 8px;">
+        <h2 style="color: #27ae60;">Your booking is confirmed!</h2>
+
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 15px 0;">
+            <p style="margin: 5px 0;"><strong>Transaction ID:</strong>
+                <span th:text="${payment?.transactionId}">SKY-XXXX-XXXX</span></p>
+            <p style="margin: 5px 0;"><strong>Flight:</strong>
+                <span th:text="${flight.flightNumber}">SW-101</span></p>
+            <p style="margin: 5px 0;"><strong>Route:</strong>
+                <span th:text="${flight.origin + ' → ' + flight.destination}">Delhi → Mumbai</span></p>
+            <p style="margin: 5px 0;"><strong>Date:</strong>
+                <span th:text="${#temporals.format(flight.departureTime, 'dd MMM yyyy')}">01 Apr 2026</span></p>
+            <p style="margin: 5px 0;"><strong>Departure:</strong>
+                <span th:text="${#temporals.format(flight.departureTime, 'HH:mm')}">08:00</span></p>
+            <p style="margin: 5px 0;"><strong>Class:</strong>
+                <span th:text="${booking.seatClass}">ECONOMY</span></p>
+            <p style="margin: 5px 0;"><strong>Passengers:</strong>
+                <span th:text="${booking.numSeats}">2</span></p>
+            <p style="margin: 5px 0; font-size: 18px; color: #1e3a5f;"><strong>Total: Rs
+                <span th:text="${booking.totalPrice}">30,712.50</span></strong></p>
+        </div>
+
+        <p>Your e-ticket is attached to this email as a PDF.</p>
+        <p>Have a great flight!</p>
+
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="color: #888; font-size: 12px;">
+            This is a simulated booking for demonstration purposes. No real payment was charged.
+        </p>
+    </div>
+</body>
+</html>
