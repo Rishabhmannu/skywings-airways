@@ -68,9 +68,10 @@ public class BookingService {
         assignedSeats.forEach(seat -> seat.setIsAvailable(false));
         seatRepository.saveAll(assignedSeats);
 
-        // Calculate pricing
+        // Calculate pricing with fare type
+        String fareType = request.getFareType() != null ? request.getFareType() : "REGULAR";
         PricingService.PricingResult pricing = pricingService.calculate(
-            flight, seatClass, request.getPassengers().size());
+            flight, seatClass, request.getPassengers().size(), fareType);
 
         // Create booking
         Booking booking = Booking.builder()
@@ -80,6 +81,7 @@ public class BookingService {
             .status(BookingStatus.PENDING)
             .seatClass(seatClass)
             .numSeats(request.getPassengers().size())
+            .fareType(fareType)
             .totalPrice(pricing.total())
             .taxAmount(pricing.tax())
             .penaltyAmount(BigDecimal.ZERO)
@@ -89,12 +91,19 @@ public class BookingService {
         // Create passenger entries
         for (int i = 0; i < request.getPassengers().size(); i++) {
             PassengerDetail pd = request.getPassengers().get(i);
+            boolean isSenior = pd.getAge() >= 60;
             BookingPassenger bp = BookingPassenger.builder()
                 .booking(booking)
                 .seat(assignedSeats.get(i))
                 .passengerName(pd.getName())
                 .age(pd.getAge())
                 .passportNumber(pd.getPassportNumber())
+                .gender(pd.getGender())
+                .dateOfBirth(pd.getDateOfBirth())
+                .nationality(pd.getNationality())
+                .mealPreference(pd.getMealPreference())
+                .specialAssistance(pd.getSpecialAssistance())
+                .isSeniorCitizen(isSenior)
                 .build();
             bookingPassengerRepository.save(bp);
         }
@@ -216,6 +225,12 @@ public class BookingService {
                 .age(bp.getAge())
                 .seatNumber(bp.getSeat() != null ? bp.getSeat().getSeatNumber() : null)
                 .passportNumber(bp.getPassportNumber())
+                .gender(bp.getGender())
+                .dateOfBirth(bp.getDateOfBirth())
+                .nationality(bp.getNationality())
+                .mealPreference(bp.getMealPreference())
+                .specialAssistance(bp.getSpecialAssistance())
+                .isSeniorCitizen(bp.getIsSeniorCitizen())
                 .build())
             .toList();
 
@@ -231,6 +246,7 @@ public class BookingService {
             .flightType(flight.getFlightType())
             .seatClass(booking.getSeatClass().name())
             .numSeats(booking.getNumSeats())
+            .fareType(booking.getFareType())
             .totalPrice(booking.getTotalPrice())
             .taxAmount(booking.getTaxAmount())
             .penaltyAmount(booking.getPenaltyAmount())

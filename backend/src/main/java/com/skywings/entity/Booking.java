@@ -49,6 +49,10 @@ public class Booking {
     @Column(name = "num_seats", nullable = false)
     private Integer numSeats;
 
+    @Column(name = "fare_type", length = 20)
+    @Builder.Default
+    private String fareType = "REGULAR";
+
     @Column(name = "total_price", nullable = false)
     private BigDecimal totalPrice;
 

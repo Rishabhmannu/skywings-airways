@@ -49,11 +49,18 @@ public class SerpApiFlightService {
 
     public List<AmadeusFlightResponse> searchFlights(String origin, String dest,
                                                       LocalDate date, int adults) {
+        return searchFlights(origin, dest, date, adults, "one_way", null);
+    }
+
+    public List<AmadeusFlightResponse> searchFlights(String origin, String dest,
+                                                      LocalDate date, int adults,
+                                                      String tripType, LocalDate returnDate) {
         if (!available) {
             return List.of();
         }
 
-        String cacheKey = "serpapi:" + origin.toUpperCase() + ":" + dest.toUpperCase() + ":" + date;
+        String cacheKey = "serpapi:" + origin.toUpperCase() + ":" + dest.toUpperCase() + ":" + date
+            + (returnDate != null ? ":" + returnDate : "");
 
         // Check Redis cache
         try {
@@ -67,18 +74,22 @@ public class SerpApiFlightService {
         }
 
         try {
-            String url = UriComponentsBuilder.fromHttpUrl("https://serpapi.com/search")
+            boolean isRoundTrip = "round_trip".equals(tripType) && returnDate != null;
+            var urlBuilder = UriComponentsBuilder.fromHttpUrl("https://serpapi.com/search")
                     .queryParam("engine", "google_flights")
                     .queryParam("departure_id", origin.toUpperCase())
                     .queryParam("arrival_id", dest.toUpperCase())
                     .queryParam("outbound_date", date.toString())
-                    .queryParam("type", "2")          // One-way
+                    .queryParam("type", isRoundTrip ? "1" : "2")  // 1=round trip, 2=one way
                     .queryParam("currency", "INR")
                     .queryParam("hl", "en")
                     .queryParam("gl", "in")
                     .queryParam("adults", adults)
-                    .queryParam("api_key", apiKey)
-                    .toUriString();
+                    .queryParam("api_key", apiKey);
+            if (isRoundTrip) {
+                urlBuilder.queryParam("return_date", returnDate.toString());
+            }
+            String url = urlBuilder.toUriString();
 
             String response = restTemplate.getForObject(url, String.class);
             JsonNode root = objectMapper.readTree(response);

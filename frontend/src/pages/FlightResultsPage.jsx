@@ -3,7 +3,15 @@ import { useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import FlightCard from '../components/flights/FlightCard';
 import FlightSearchForm from '../components/flights/FlightSearchForm';
-import { Loader2, AlertCircle, Plane } from 'lucide-react';
+import { Loader2, AlertCircle, Plane, Tag } from 'lucide-react';
+
+const FARE_LABELS = {
+  REGULAR: null,
+  STUDENT: { label: 'Student Fare', discount: '10% off', color: 'bg-blue-100 text-blue-700' },
+  ARMED_FORCES: { label: 'Armed Forces', discount: '15% off', color: 'bg-green-100 text-green-700' },
+  SENIOR_CITIZEN: { label: 'Senior Citizen', discount: '12% off', color: 'bg-amber-100 text-amber-700' },
+  MEDICAL: { label: 'Doctors & Nurses', discount: '10% off', color: 'bg-purple-100 text-purple-700' },
+};
 
 export default function FlightResultsPage() {
   const [searchParams] = useSearchParams();
@@ -14,26 +22,30 @@ export default function FlightResultsPage() {
   const origin = searchParams.get('origin');
   const dest = searchParams.get('dest');
   const date = searchParams.get('date');
+  const fareType = searchParams.get('fareType') || 'REGULAR';
+  const tripType = searchParams.get('tripType') || 'one_way';
+  const returnDate = searchParams.get('returnDate');
 
   useEffect(() => {
     if (!origin || !dest || !date) return;
     setLoading(true);
     setFlights([]);
 
-    // Primary: SerpAPI Google Flights (real data)
-    api.get(`/flights/live-search?origin=${origin}&dest=${dest}&date=${date}&adults=1`)
+    let url = `/flights/live-search?origin=${origin}&dest=${dest}&date=${date}&adults=1`;
+    if (tripType === 'round_trip' && returnDate) {
+      url += `&tripType=round_trip&returnDate=${returnDate}`;
+    }
+
+    api.get(url)
       .then(r => {
         setFlights(r.data);
         setSource(r.data.length > 0 ? r.data[0].source : '');
       })
       .catch(() => setFlights([]))
       .finally(() => setLoading(false));
-  }, [origin, dest, date]);
+  }, [origin, dest, date, tripType, returnDate]);
 
-  const airportName = (code) => {
-    const map = { DEL: 'New Delhi', BOM: 'Mumbai', BLR: 'Bangalore', MAA: 'Chennai', CCU: 'Kolkata', HYD: 'Hyderabad', GOI: 'Goa', JAI: 'Jaipur', DXB: 'Dubai', SIN: 'Singapore', LHR: 'London', BKK: 'Bangkok', JFK: 'New York' };
-    return map[code] || code;
-  };
+  const fareInfo = FARE_LABELS[fareType];
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -41,22 +53,26 @@ export default function FlightResultsPage() {
 
       <div className="mt-8">
         {origin && dest && date && (
-          <div className="flex items-center gap-3 mb-6">
+          <div className="flex flex-wrap items-center gap-3 mb-6">
             <Plane className="w-5 h-5 text-[#1e3a5f]" />
             <h2 className="text-lg font-semibold text-gray-800">
-              {airportName(origin)} ({origin}) &rarr; {airportName(dest)} ({dest})
+              {origin} &rarr; {dest}
+              {tripType === 'round_trip' && returnDate && <span className="text-gray-400 font-normal text-sm ml-2">(Round Trip)</span>}
             </h2>
             <span className="text-sm text-gray-400">
-              {new Date(date + 'T00:00').toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+              {new Date(date + 'T00:00').toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
+              {tripType === 'round_trip' && returnDate && (
+                <> &mdash; {new Date(returnDate + 'T00:00').toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}</>
+              )}
             </span>
+            {fareInfo && (
+              <span className={`text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1 ${fareInfo.color}`}>
+                <Tag className="w-3 h-3" /> {fareInfo.label} ({fareInfo.discount})
+              </span>
+            )}
             {source === 'GOOGLE_FLIGHTS' && (
               <span className="ml-auto bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full font-medium">
                 Real-time from Google Flights
-              </span>
-            )}
-            {source === 'SKYWINGS_DB' && (
-              <span className="ml-auto bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full font-medium">
-                SkyWings Routes
               </span>
             )}
           </div>
@@ -70,7 +86,7 @@ export default function FlightResultsPage() {
           </div>
         ) : flights.length > 0 ? (
           <div className="space-y-4">
-            {flights.map((f, i) => <FlightCard key={i} flight={f} source={f.source || source} />)}
+            {flights.map((f, i) => <FlightCard key={i} flight={f} source={f.source || source} fareType={fareType} />)}
           </div>
         ) : (
           <div className="text-center py-16">

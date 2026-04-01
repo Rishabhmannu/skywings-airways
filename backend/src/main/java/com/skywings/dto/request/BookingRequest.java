@@ -25,4 +25,6 @@ public class BookingRequest {
     @Size(max = 6, message = "Maximum 6 passengers per booking")
     @Valid
     private List<PassengerDetail> passengers;
+
+    private String fareType; // REGULAR, STUDENT, ARMED_FORCES, SENIOR_CITIZEN, MEDICAL
 }

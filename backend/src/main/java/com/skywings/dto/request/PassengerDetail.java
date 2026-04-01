@@ -20,4 +20,9 @@ public class PassengerDetail {
     private Integer age;
 
     private String passportNumber;
+    private String gender;
+    private String dateOfBirth;
+    private String nationality;
+    private String mealPreference;
+    private String specialAssistance;
 }

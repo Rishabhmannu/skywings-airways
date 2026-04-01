@@ -83,20 +83,24 @@ public class TicketService {
             addCell(flightTable, "Arrival", flight.getArrivalTime().format(TIME_FMT));
             addCell(flightTable, "Type", flight.getFlightType());
             addCell(flightTable, "Class", booking.getSeatClass().name());
+            if (booking.getFareType() != null && !"REGULAR".equals(booking.getFareType())) {
+                addCell(flightTable, "Fare Type", booking.getFareType().replace("_", " "));
+            }
             document.add(flightTable);
             document.add(new Paragraph("\n"));
 
             // Passengers
             document.add(new Paragraph("PASSENGER(S)", HEADER_FONT));
-            PdfPTable paxTable = new PdfPTable(4);
+            PdfPTable paxTable = new PdfPTable(5);
             paxTable.setWidthPercentage(100);
             paxTable.setSpacingBefore(5);
-            paxTable.setWidths(new float[]{3, 1.5f, 1.5f, 2});
+            paxTable.setWidths(new float[]{3, 1, 1.5f, 2, 2.5f});
 
             addHeaderCell(paxTable, "Name");
             addHeaderCell(paxTable, "Age");
             addHeaderCell(paxTable, "Seat");
-            addHeaderCell(paxTable, "Passport");
+            addHeaderCell(paxTable, "Gender");
+            addHeaderCell(paxTable, "Details");
 
             for (BookingPassenger bp : passengers) {
                 paxTable.addCell(new Phrase(bp.getPassengerName(), NORMAL_FONT));
@@ -104,7 +108,29 @@ public class TicketService {
                 paxTable.addCell(new Phrase(
                     bp.getSeat() != null ? bp.getSeat().getSeatNumber() : "—", NORMAL_FONT));
                 paxTable.addCell(new Phrase(
-                    bp.getPassportNumber() != null ? bp.getPassportNumber() : "—", NORMAL_FONT));
+                    bp.getGender() != null ? bp.getGender() : "—", NORMAL_FONT));
+
+                // Build details string from optional fields
+                StringBuilder details = new StringBuilder();
+                if (bp.getPassportNumber() != null) details.append("PP: ").append(bp.getPassportNumber());
+                if (bp.getNationality() != null) {
+                    if (!details.isEmpty()) details.append(" | ");
+                    details.append(bp.getNationality());
+                }
+                if (bp.getMealPreference() != null && !"NO_PREFERENCE".equals(bp.getMealPreference())) {
+                    if (!details.isEmpty()) details.append(" | ");
+                    details.append("Meal: ").append(bp.getMealPreference());
+                }
+                if (bp.getSpecialAssistance() != null && !"NONE".equals(bp.getSpecialAssistance())) {
+                    if (!details.isEmpty()) details.append(" | ");
+                    details.append("Assist: ").append(bp.getSpecialAssistance());
+                }
+                if (Boolean.TRUE.equals(bp.getIsSeniorCitizen())) {
+                    if (!details.isEmpty()) details.append(" | ");
+                    details.append("Senior Citizen");
+                }
+                paxTable.addCell(new Phrase(
+                    !details.isEmpty() ? details.toString() : "—", SMALL_FONT));
             }
             document.add(paxTable);
             document.add(new Paragraph("\n"));

@@ -16,7 +16,6 @@ import com.skywings.repository.SeatRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +35,6 @@ public class FlightService {
     private final FlightRepository flightRepository;
     private final SeatRepository seatRepository;
 
-    @Cacheable(value = "flights", key = "#origin + ':' + #dest + ':' + #date")
     public List<FlightResponse> searchFlights(String origin, String dest, LocalDate date) {
         List<Flight> flights = flightRepository.searchFlights(
             origin.toUpperCase(), dest.toUpperCase(), date);

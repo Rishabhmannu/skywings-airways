@@ -38,14 +38,14 @@ public class SecurityConfig {
                 // Public endpoints
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/flights/search", "/api/flights/live-search", "/api/flights/{id}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/airports/search").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/flights/import-live").authenticated()
                 .requestMatchers("/actuator/**").permitAll()
                 // Admin endpoints
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/flights").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/flights/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/flights/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/flights/{id}").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/flights/{id}").hasRole("ADMIN")
                 // All other endpoints require authentication
                 .anyRequest().authenticated()
             );

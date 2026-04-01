@@ -37,4 +37,23 @@ public class BookingPassenger {
 
     @Column(name = "passport_number", length = 20)
     private String passportNumber;
+
+    @Column(length = 10)
+    private String gender;
+
+    @Column(name = "date_of_birth", length = 10)
+    private String dateOfBirth;
+
+    @Column(length = 50)
+    private String nationality;
+
+    @Column(name = "meal_preference", length = 20)
+    private String mealPreference;
+
+    @Column(name = "special_assistance", length = 50)
+    private String specialAssistance;
+
+    @Column(name = "is_senior_citizen")
+    @Builder.Default
+    private Boolean isSeniorCitizen = false;
 }

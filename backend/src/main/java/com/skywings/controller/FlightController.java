@@ -38,10 +38,12 @@ public class FlightController {
             @RequestParam String origin,
             @RequestParam String dest,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam(defaultValue = "1") int adults) {
+            @RequestParam(defaultValue = "1") int adults,
+            @RequestParam(defaultValue = "one_way") String tripType,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate returnDate) {
 
         List<AmadeusFlightResponse> results = serpApiFlightService.searchFlights(
-            origin, dest, date, adults);
+            origin, dest, date, adults, tripType, returnDate);
 
         // Fallback to DB flights if SerpAPI is unavailable
         if (results.isEmpty()) {
@@ -86,6 +88,7 @@ public class FlightController {
     }
 
     @PostMapping
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<FlightResponse> createFlight(@Valid @RequestBody CreateFlightRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(flightService.createFlight(request));
     }

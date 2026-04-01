@@ -28,6 +28,7 @@ public class BookingResponse {
     private String flightType;
     private String seatClass;
     private Integer numSeats;
+    private String fareType;
     private BigDecimal totalPrice;
     private BigDecimal taxAmount;
     private BigDecimal penaltyAmount;
@@ -46,5 +47,11 @@ public class BookingResponse {
         private Integer age;
         private String seatNumber;
         private String passportNumber;
+        private String gender;
+        private String dateOfBirth;
+        private String nationality;
+        private String mealPreference;
+        private String specialAssistance;
+        private Boolean isSeniorCitizen;
     }
 }
