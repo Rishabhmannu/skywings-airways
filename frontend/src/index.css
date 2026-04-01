@@ -7,3 +7,24 @@ body {
   background-color: #f8fafc;
   color: #1e293b;
 }
+
+/* Fix Tailwind v4 resetting native form controls */
+select, input[type="date"] {
+  appearance: auto;
+  -webkit-appearance: auto;
+  -moz-appearance: auto;
+}
+
+/* Ensure select shows selected value text */
+select {
+  color: #1f2937;
+  background-color: white;
+}
+
+select option {
+  color: #1f2937;
+}
+
+select option:disabled {
+  color: #9ca3af;
+}

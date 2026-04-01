@@ -16,8 +16,13 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const user = await login(email, password);
-      toast.success(`Welcome back, ${user.name}!`);
-      navigate(user.role === 'ADMIN' ? '/admin' : '/');
+      if (!user.emailVerified && user.role !== 'ADMIN') {
+        toast.success('Please verify your email to continue.');
+        navigate('/verify-email');
+      } else {
+        toast.success(`Welcome back, ${user.name}!`);
+        navigate(user.role === 'ADMIN' ? '/admin' : '/');
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Invalid email or password');
     } finally {

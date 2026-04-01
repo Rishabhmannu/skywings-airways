@@ -30,6 +30,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final BookingRepository bookingRepository;
     private final OtpService otpService;
+    private final NotificationService notificationService;
 
     @Transactional
     public PaymentResponse initiatePayment(PaymentRequest request, User user) {
@@ -106,9 +107,13 @@ public class PaymentService {
         paymentRepository.save(payment);
 
         booking.setStatus(BookingStatus.CONFIRMED);
+        booking.setPayment(payment);
         bookingRepository.save(booking);
 
         log.info("Payment completed for booking {} — txn: {}", bookingId, payment.getTransactionId());
+
+        // Send confirmation email with e-ticket (async — doesn't block response)
+        notificationService.sendBookingConfirmation(booking);
 
         return PaymentResponse.builder()
             .transactionId(payment.getTransactionId())

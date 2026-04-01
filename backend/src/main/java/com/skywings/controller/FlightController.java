@@ -5,7 +5,7 @@ import com.skywings.dto.request.UpdateFlightRequest;
 import com.skywings.dto.response.AmadeusFlightResponse;
 import com.skywings.dto.response.FlightResponse;
 import com.skywings.dto.response.SeatMapResponse;
-import com.skywings.service.AmadeusFlightService;
+import com.skywings.service.SerpApiFlightService;
 import com.skywings.service.FlightService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import java.util.List;
 public class FlightController {
 
     private final FlightService flightService;
-    private final AmadeusFlightService amadeusFlightService;
+    private final SerpApiFlightService serpApiFlightService;
 
     @GetMapping("/search")
     public ResponseEntity<List<FlightResponse>> searchFlights(
@@ -40,10 +40,10 @@ public class FlightController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(defaultValue = "1") int adults) {
 
-        List<AmadeusFlightResponse> results = amadeusFlightService.searchFlights(
+        List<AmadeusFlightResponse> results = serpApiFlightService.searchFlights(
             origin, dest, date, adults);
 
-        // Fallback to DB flights if Amadeus is unavailable
+        // Fallback to DB flights if SerpAPI is unavailable
         if (results.isEmpty()) {
             List<FlightResponse> dbFlights = flightService.searchFlights(origin, dest, date);
             results = dbFlights.stream()
@@ -67,6 +67,12 @@ public class FlightController {
         }
 
         return ResponseEntity.ok(results);
+    }
+
+    @PostMapping("/import-live")
+    public ResponseEntity<FlightResponse> importLiveFlight(@RequestBody AmadeusFlightResponse liveFlight) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(flightService.importFromLiveSearch(liveFlight));
     }
 
     @GetMapping("/{id}")

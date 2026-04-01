@@ -13,6 +13,7 @@ import PaymentPage from './pages/PaymentPage';
 import MyBookingsPage from './pages/MyBookingsPage';
 import ProfilePage from './pages/ProfilePage';
 import AboutPage from './pages/AboutPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import ManageFlightsPage from './pages/admin/ManageFlightsPage';
 import ManageBookingsPage from './pages/admin/ManageBookingsPage';
@@ -32,8 +33,9 @@ export default function App() {
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/flights" element={<FlightResultsPage />} />
               <Route path="/about" element={<AboutPage />} />
+              <Route path="/verify-email" element={<VerifyEmailPage />} />
 
-              {/* Passenger */}
+              {/* Passenger (authenticated + verified) */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/booking/:flightId" element={<BookingPage />} />
                 <Route path="/payment/:bookingId" element={<PaymentPage />} />

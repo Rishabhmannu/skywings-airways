@@ -2,6 +2,7 @@ package com.skywings.service;
 
 import com.skywings.dto.request.CreateFlightRequest;
 import com.skywings.dto.request.UpdateFlightRequest;
+import com.skywings.dto.response.AmadeusFlightResponse;
 import com.skywings.dto.response.FlightResponse;
 import com.skywings.dto.response.SeatMapResponse;
 import com.skywings.entity.Flight;
@@ -20,8 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -124,6 +127,78 @@ public class FlightService {
             throw new ResourceNotFoundException("Flight not found with id: " + id);
         }
         flightRepository.deleteById(id);
+    }
+
+    @Transactional
+    public FlightResponse importFromLiveSearch(AmadeusFlightResponse liveFlight) {
+        // Build a clean flight number (max 30 chars)
+        String flightNumber = liveFlight.getFlightNumber() != null
+            ? liveFlight.getFlightNumber().replace(" ", "-").trim()
+            : "LV-" + System.currentTimeMillis();
+        if (flightNumber.length() > 30) {
+            flightNumber = flightNumber.substring(0, 30);
+        }
+
+        var existing = flightRepository.findByFlightNumber(flightNumber);
+        if (existing.isPresent()) {
+            return toFlightResponse(existing.get());
+        }
+
+        // Determine flight type
+        String origin = liveFlight.getOrigin() != null ? liveFlight.getOrigin() : "UNK";
+        String dest = liveFlight.getDestination() != null ? liveFlight.getDestination() : "UNK";
+        boolean isInternational = !isIndianAirport(origin) || !isIndianAirport(dest);
+
+        // Parse times
+        LocalDateTime depTime = parseFlightTime(liveFlight.getDepartureTime());
+        LocalDateTime arrTime = parseFlightTime(liveFlight.getArrivalTime());
+        if (depTime == null) depTime = LocalDateTime.now().plusDays(7);
+        if (arrTime == null) arrTime = depTime.plusHours(2);
+
+        // Use the live price as economy, 2.5x for business
+        BigDecimal economyPrice = liveFlight.getPrice() != null ? liveFlight.getPrice() : new BigDecimal("6500");
+        BigDecimal businessPrice = economyPrice.multiply(new BigDecimal("2.5")).setScale(2, RoundingMode.HALF_UP);
+
+        Flight flight = Flight.builder()
+            .flightNumber(flightNumber)
+            .airline(liveFlight.getAirline() != null ? liveFlight.getAirline() : "SkyWings Airways")
+            .origin(origin)
+            .originCode(origin)
+            .destination(dest)
+            .destCode(dest)
+            .departureTime(depTime)
+            .arrivalTime(arrTime)
+            .flightType(isInternational ? "INTERNATIONAL" : "DOMESTIC")
+            .status(FlightStatus.SCHEDULED)
+            .basePriceEconomy(economyPrice)
+            .basePriceBusiness(businessPrice)
+            .build();
+
+        flight = flightRepository.save(flight);
+        generateSeats(flight);
+        log.info("Imported live flight: {} ({} → {})", flightNumber, origin, dest);
+        return toFlightResponse(flight);
+    }
+
+    private boolean isIndianAirport(String code) {
+        return java.util.Set.of("DEL", "BOM", "BLR", "MAA", "CCU", "HYD", "GOI", "JAI", "AMD", "PNQ", "COK", "GAU", "IXC", "SXR", "TRV", "VNS", "LKO", "PAT", "IXB", "RPR").contains(code.toUpperCase());
+    }
+
+    private LocalDateTime parseFlightTime(String timeStr) {
+        if (timeStr == null || timeStr.isBlank()) return null;
+        try {
+            return LocalDateTime.parse(timeStr);
+        } catch (Exception e) {
+            try {
+                // Try parsing just time like "08:30" with today's date
+                return LocalDateTime.now().plusDays(7)
+                    .withHour(Integer.parseInt(timeStr.split(":")[0]))
+                    .withMinute(Integer.parseInt(timeStr.split(":")[1]))
+                    .withSecond(0);
+            } catch (Exception e2) {
+                return null;
+            }
+        }
     }
 
     public List<FlightResponse> getAllFlights() {

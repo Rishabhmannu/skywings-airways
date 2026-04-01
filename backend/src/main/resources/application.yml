@@ -56,12 +56,13 @@ twilio:
   auth-token: ${TWILIO_AUTH_TOKEN:placeholder}
   phone-number: ${TWILIO_PHONE_NUMBER:placeholder}
 
-amadeus:
-  api-key: ${AMADEUS_API_KEY:placeholder}
-  api-secret: ${AMADEUS_API_SECRET:placeholder}
-  environment: test
+serpapi:
+  api-key: ${SERPAPI_API_KEY:placeholder}
 
 skywings:
+  mail:
+    from-email: ${SENDGRID_FROM_EMAIL:rishabhkumards07@gmail.com}
+    from-name: ${SENDGRID_FROM_NAME:SkyWings Airways}
   booking:
     expiry-minutes: 15
     max-seats-per-booking: 6

@@ -1,9 +1,11 @@
 package com.skywings.service;
 
 import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,12 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
 
+    @Value("${skywings.mail.from-email}")
+    private String fromEmail;
+
+    @Value("${skywings.mail.from-name}")
+    private String fromName;
+
     public void sendOtpEmail(String toEmail, String otp) {
         try {
             Context context = new Context();
@@ -30,10 +38,10 @@ public class EmailService {
             helper.setTo(toEmail);
             helper.setSubject("SkyWings Airways - Payment Verification Code");
             helper.setText(htmlBody, true);
-            helper.setFrom("noreply@skywings.com");
+            helper.setFrom(new InternetAddress(fromEmail, fromName));
             mailSender.send(message);
             log.info("OTP email sent to {}", toEmail);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             log.error("Failed to send OTP email to {}: {}", toEmail, e.getMessage());
             throw new RuntimeException("Failed to send OTP email", e);
         }
@@ -46,7 +54,7 @@ public class EmailService {
             helper.setTo(toEmail);
             helper.setSubject(subject);
             helper.setText(htmlBody, true);
-            helper.setFrom("noreply@skywings.com");
+            helper.setFrom(new InternetAddress(fromEmail, fromName));
 
             if (pdfAttachment != null) {
                 helper.addAttachment("SkyWings-ETicket.pdf",
@@ -56,7 +64,7 @@ public class EmailService {
 
             mailSender.send(message);
             log.info("Booking confirmation email sent to {}", toEmail);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             log.error("Failed to send booking confirmation to {}: {}", toEmail, e.getMessage());
         }
     }
@@ -68,10 +76,10 @@ public class EmailService {
             helper.setTo(toEmail);
             helper.setSubject(subject);
             helper.setText(htmlBody, true);
-            helper.setFrom("noreply@skywings.com");
+            helper.setFrom(new InternetAddress(fromEmail, fromName));
             mailSender.send(message);
             log.info("Cancellation email sent to {}", toEmail);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             log.error("Failed to send cancellation email to {}: {}", toEmail, e.getMessage());
         }
     }

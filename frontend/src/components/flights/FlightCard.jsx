@@ -1,26 +1,63 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plane, Clock, ArrowRight } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../api/axios';
+import toast from 'react-hot-toast';
+import { Plane, Clock, ArrowRight, Loader2 } from 'lucide-react';
 
 export default function FlightCard({ flight, source }) {
   const navigate = useNavigate();
-  const isLive = source === 'AMADEUS';
+  const { user } = useAuth();
+  const [booking, setBooking] = useState(false);
+  const isLive = source === 'GOOGLE_FLIGHTS';
 
   const formatTime = (dt) => {
     if (!dt) return '--:--';
-    const d = new Date(dt);
-    return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false });
+    // Handle both "2026-04-07T08:00" and "08:30" formats
+    if (dt.includes('T') || dt.includes('-')) {
+      const d = new Date(dt);
+      if (!isNaN(d)) return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false });
+    }
+    return dt; // Already a time string like "08:30"
   };
 
   const formatDate = (dt) => {
     if (!dt) return '';
-    const d = new Date(dt);
-    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+    if (dt.includes('T') || dt.includes('-')) {
+      const d = new Date(dt);
+      if (!isNaN(d)) return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+    }
+    return '';
   };
 
   const origin = flight.originCode || flight.origin;
   const dest = flight.destCode || flight.destination;
   const depTime = flight.departureTime;
   const arrTime = flight.arrivalTime;
+  const price = flight.price || flight.basePriceEconomy;
+
+  const handleBook = async () => {
+    if (!user) { navigate('/login'); return; }
+    if (!user.emailVerified && user.role !== 'ADMIN') { navigate('/verify-email'); return; }
+
+    // If it's a DB flight with an id, go directly to booking
+    if (flight.id) {
+      navigate(`/booking/${flight.id}`);
+      return;
+    }
+
+    // For live flights, import into DB first then navigate
+    setBooking(true);
+    try {
+      const { data } = await api.post('/flights/import-live', flight);
+      toast.success('Flight selected! Choose your seats.');
+      navigate(`/booking/${data.id}`);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to select flight. Please try again.');
+    } finally {
+      setBooking(false);
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition p-6 border border-gray-100">
@@ -31,13 +68,13 @@ export default function FlightCard({ flight, source }) {
           {isLive && (
             <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium">LIVE</span>
           )}
-          {!isLive && (
+          {!isLive && flight.airline && (
             <span className="text-gray-400 text-xs">{flight.airline}</span>
           )}
         </div>
         <div className="text-right">
           <p className="text-2xl font-bold text-[#1e3a5f]">
-            {flight.currency === 'INR' || !flight.currency ? '\u20B9' : '$'}{Number(flight.price || flight.basePriceEconomy).toLocaleString('en-IN')}
+            {flight.currency === 'INR' || !flight.currency ? '\u20B9' : '$'}{Number(price).toLocaleString('en-IN')}
           </p>
           <p className="text-xs text-gray-400">per person</p>
         </div>
@@ -73,24 +110,23 @@ export default function FlightCard({ flight, source }) {
         </div>
       </div>
 
-      {!isLive && flight.id && (
-        <div className="flex justify-between items-center pt-4 border-t border-gray-100">
-          <div className="flex gap-4 text-sm">
-            <span className="text-gray-500">Economy: <strong>{flight.availableEconomySeats}</strong> seats</span>
-            <span className="text-gray-500">Business: <strong>{flight.availableBusinessSeats}</strong> seats</span>
-          </div>
-          <button onClick={() => navigate(`/booking/${flight.id}`)}
-            className="bg-[#1e3a5f] text-white px-5 py-2 rounded-lg hover:bg-[#2a4d7a] transition font-semibold text-sm cursor-pointer border-none">
-            Book Now
-          </button>
+      <div className="flex justify-between items-center pt-4 border-t border-gray-100">
+        <div className="flex gap-4 text-sm">
+          {!isLive && flight.availableEconomySeats !== undefined && (
+            <>
+              <span className="text-gray-500">Economy: <strong>{flight.availableEconomySeats}</strong></span>
+              <span className="text-gray-500">Business: <strong>{flight.availableBusinessSeats}</strong></span>
+            </>
+          )}
+          {isLive && (
+            <span className="text-xs text-gray-400">Powered by Google Flights</span>
+          )}
         </div>
-      )}
-
-      {isLive && (
-        <div className="pt-4 border-t border-gray-100 text-center">
-          <p className="text-xs text-gray-400">Real-time data from Amadeus API &mdash; book via SkyWings flights for full experience</p>
-        </div>
-      )}
+        <button onClick={handleBook} disabled={booking}
+          className="bg-[#1e3a5f] text-white px-5 py-2 rounded-lg hover:bg-[#2a4d7a] transition font-semibold text-sm cursor-pointer border-none disabled:opacity-50 flex items-center gap-2">
+          {booking ? <><Loader2 className="w-4 h-4 animate-spin" /> Selecting...</> : 'Book Now'}
+        </button>
+      </div>
     </div>
   );
 }

@@ -112,10 +112,20 @@ export default function PaymentPage() {
               className="px-6 py-3 bg-[#1e3a5f] text-white rounded-lg font-semibold cursor-pointer border-none hover:bg-[#2a4d7a]">
               View My Bookings
             </button>
-            <a href={`/api/tickets/${bookingId}/eticket`} target="_blank" rel="noreferrer"
-              className="px-6 py-3 border-2 border-[#1e3a5f] text-[#1e3a5f] rounded-lg font-semibold no-underline hover:bg-blue-50">
+            <button onClick={async () => {
+                try {
+                  const res = await api.get(`/tickets/${bookingId}/eticket`, { responseType: 'blob' });
+                  const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `SkyWings-ETicket-${otpInfo?.transactionId || bookingId}.pdf`;
+                  a.click();
+                  window.URL.revokeObjectURL(url);
+                } catch { toast.error('Failed to download e-ticket'); }
+              }}
+              className="px-6 py-3 border-2 border-[#1e3a5f] text-[#1e3a5f] rounded-lg font-semibold hover:bg-blue-50 cursor-pointer bg-transparent">
               Download E-Ticket
-            </a>
+            </button>
           </div>
         </div>
       )}

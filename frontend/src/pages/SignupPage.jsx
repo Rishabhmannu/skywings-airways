@@ -19,8 +19,8 @@ export default function SignupPage() {
     setLoading(true);
     try {
       await signup(form.name, form.email, form.password, form.phone);
-      toast.success('Account created successfully!');
-      navigate('/');
+      toast.success('Account created! Please verify your email.');
+      navigate('/verify-email');
     } catch (err) {
       const msg = err.response?.data?.fieldErrors
         ? err.response.data.fieldErrors.map(e => e.message).join(', ')

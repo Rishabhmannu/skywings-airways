@@ -48,6 +48,7 @@ public class DataSeeder implements CommandLineRunner {
             .name("Admin")
             .email("admin@skywings.com")
             .passwordHash(passwordEncoder.encode("Admin@123"))
+            .emailVerified(true)
             .phone("+911234567890")
             .role(Role.ADMIN)
             .build();

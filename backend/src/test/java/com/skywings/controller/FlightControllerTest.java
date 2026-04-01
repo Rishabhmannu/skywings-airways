@@ -3,7 +3,7 @@ package com.skywings.controller;
 import com.skywings.dto.response.FlightResponse;
 import com.skywings.exception.GlobalExceptionHandler;
 import com.skywings.exception.ResourceNotFoundException;
-import com.skywings.service.AmadeusFlightService;
+import com.skywings.service.SerpApiFlightService;
 import com.skywings.service.FlightService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ class FlightControllerTest {
     @Autowired private MockMvc mockMvc;
 
     @MockBean private FlightService flightService;
-    @MockBean private AmadeusFlightService amadeusFlightService;
+    @MockBean private SerpApiFlightService serpApiFlightService;
     @MockBean private com.skywings.service.JwtService jwtService;
     @MockBean private com.skywings.config.JwtAuthenticationFilter jwtAuthFilter;
     @MockBean private com.skywings.repository.UserRepository userRepository;

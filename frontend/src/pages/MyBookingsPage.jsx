@@ -77,10 +77,20 @@ export default function MyBookingsPage() {
               <div className="flex gap-3 pt-3 border-t border-gray-100">
                 {b.status === 'CONFIRMED' && (
                   <>
-                    <a href={`/api/tickets/${b.id}/eticket`} target="_blank" rel="noreferrer"
-                      className="flex items-center gap-1 text-sm text-[#1e3a5f] font-semibold hover:underline no-underline">
+                    <button onClick={async () => {
+                        try {
+                          const res = await api.get(`/tickets/${b.id}/eticket`, { responseType: 'blob' });
+                          const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `SkyWings-ETicket-${b.transactionId || b.id}.pdf`;
+                          a.click();
+                          window.URL.revokeObjectURL(url);
+                        } catch { toast.error('Failed to download e-ticket'); }
+                      }}
+                      className="flex items-center gap-1 text-sm text-[#1e3a5f] font-semibold hover:underline bg-transparent border-none cursor-pointer">
                       <Download className="w-4 h-4" /> E-Ticket
-                    </a>
+                    </button>
                     <button onClick={() => handleCancel(b.id)}
                       className="flex items-center gap-1 text-sm text-red-500 font-semibold hover:underline bg-transparent border-none cursor-pointer ml-auto">
                       <XCircle className="w-4 h-4" /> Cancel
