@@ -77,8 +77,27 @@ export default function ProfilePage() {
         <form onSubmit={handlePassword} className="space-y-4">
           <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} required placeholder="Current password"
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" />
-          <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required placeholder="New password" minLength={8}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+          <div>
+            <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required placeholder="New password" minLength={8}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            <div className="mt-2 text-xs text-gray-400 space-y-0.5">
+              <p className={newPassword.length >= 8 ? 'text-green-500' : ''}>
+                {newPassword.length >= 8 ? '\u2713' : '\u2022'} At least 8 characters
+              </p>
+              <p className={/[A-Z]/.test(newPassword) ? 'text-green-500' : ''}>
+                {/[A-Z]/.test(newPassword) ? '\u2713' : '\u2022'} One uppercase letter
+              </p>
+              <p className={/[a-z]/.test(newPassword) ? 'text-green-500' : ''}>
+                {/[a-z]/.test(newPassword) ? '\u2713' : '\u2022'} One lowercase letter
+              </p>
+              <p className={/\d/.test(newPassword) ? 'text-green-500' : ''}>
+                {/\d/.test(newPassword) ? '\u2713' : '\u2022'} One digit
+              </p>
+              <p className={/[@$!%*?&#]/.test(newPassword) ? 'text-green-500' : ''}>
+                {/[@$!%*?&#]/.test(newPassword) ? '\u2713' : '\u2022'} One special character (@$!%*?&#)
+              </p>
+            </div>
+          </div>
           <button type="submit" className="bg-[#1e3a5f] text-white px-6 py-2 rounded-lg font-semibold cursor-pointer border-none hover:bg-[#2a4d7a]">Change Password</button>
         </form>
       </div>

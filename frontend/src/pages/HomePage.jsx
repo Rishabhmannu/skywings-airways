@@ -16,14 +16,12 @@ const popularRoutes = [
 export default function HomePage() {
   const navigate = useNavigate();
   const [dbFlights, setDbFlights] = useState([]);
+  const [flightsError, setFlightsError] = useState(false);
 
   useEffect(() => {
-    api.get('/flights/search?origin=DEL&dest=BOM&date=2030-01-01')
-      .catch(() => {});
-    // Fetch some sample SkyWings flights for the "popular" section
     api.get('/flights/search?origin=DEL&dest=BOM&date=' + getNextWeekDate())
       .then(r => setDbFlights(r.data.slice(0, 3)))
-      .catch(() => {});
+      .catch(() => setFlightsError(true));
   }, []);
 
   function getNextWeekDate() {
@@ -108,6 +106,11 @@ export default function HomePage() {
       </section>
 
       {/* SkyWings Flights Preview */}
+      {flightsError && (
+        <section className="max-w-6xl mx-auto py-8 px-4 border-t border-gray-100">
+          <p className="text-center text-sm text-gray-400">Could not load SkyWings flights. The backend may be starting up.</p>
+        </section>
+      )}
       {dbFlights.length > 0 && (
         <section className="max-w-6xl mx-auto py-16 px-4 border-t border-gray-100">
           <div className="flex items-center gap-3 mb-8">
