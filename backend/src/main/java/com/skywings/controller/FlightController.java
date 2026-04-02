@@ -94,12 +94,14 @@ public class FlightController {
     }
 
     @PutMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<FlightResponse> updateFlight(@PathVariable Long id,
                                                         @RequestBody UpdateFlightRequest request) {
         return ResponseEntity.ok(flightService.updateFlight(id, request));
     }
 
     @DeleteMapping("/{id}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteFlight(@PathVariable Long id) {
         flightService.deleteFlight(id);
         return ResponseEntity.noContent().build();

@@ -18,6 +18,7 @@ import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import ManageFlightsPage from './pages/admin/ManageFlightsPage';
 import ManageBookingsPage from './pages/admin/ManageBookingsPage';
 import ManageUsersPage from './pages/admin/ManageUsersPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 export default function App() {
   return (
@@ -50,6 +51,9 @@ export default function App() {
                 <Route path="/admin/bookings" element={<ManageBookingsPage />} />
                 <Route path="/admin/users" element={<ManageUsersPage />} />
               </Route>
+
+              {/* 404 */}
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </main>
           <Footer />

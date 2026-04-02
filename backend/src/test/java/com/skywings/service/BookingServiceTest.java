@@ -56,6 +56,14 @@ class BookingServiceTest {
                 .build();
     }
 
+    private PassengerDetail testPassenger(String name, int age, String passport) {
+        PassengerDetail pd = new PassengerDetail();
+        pd.setName(name);
+        pd.setAge(age);
+        pd.setPassportNumber(passport);
+        return pd;
+    }
+
     @Test
     void createBooking_withAvailableSeats_shouldSucceed() {
         Flight flight = testFlight();
@@ -64,14 +72,17 @@ class BookingServiceTest {
                 Seat.builder().id(1L).seatNumber("3A").seatClass(SeatClass.ECONOMY).isAvailable(true).price(new BigDecimal("6500")).build(),
                 Seat.builder().id(2L).seatNumber("3B").seatClass(SeatClass.ECONOMY).isAvailable(true).price(new BigDecimal("6500")).build()
         );
-        BookingRequest request = new BookingRequest(1L, "ECONOMY",
-                List.of(new PassengerDetail("Rishabh", 22, null)));
+        BookingRequest request = new BookingRequest();
+        request.setFlightId(1L);
+        request.setSeatClass("ECONOMY");
+        request.setPassengers(List.of(testPassenger("Rishabh", 22, null)));
 
         when(flightRepository.findById(1L)).thenReturn(Optional.of(flight));
         when(seatRepository.findAvailableSeatsWithLock(1L, SeatClass.ECONOMY)).thenReturn(seats);
-        when(pricingService.calculate(any(), eq(SeatClass.ECONOMY), eq(1)))
+        when(pricingService.calculate(any(), eq(SeatClass.ECONOMY), eq(1), any()))
                 .thenReturn(new PricingService.PricingResult(
-                        new BigDecimal("13000"), new BigDecimal("650"), new BigDecimal("13650")));
+                        new BigDecimal("13000"), new BigDecimal("650"), new BigDecimal("13650"),
+                        BigDecimal.ZERO, "REGULAR"));
         when(bookingRepository.save(any(Booking.class))).thenAnswer(inv -> {
             Booking b = inv.getArgument(0);
             b.setId(1L);
@@ -94,8 +105,10 @@ class BookingServiceTest {
         when(flightRepository.findById(1L)).thenReturn(Optional.of(flight));
         when(seatRepository.findAvailableSeatsWithLock(1L, SeatClass.ECONOMY)).thenReturn(List.of());
 
-        BookingRequest request = new BookingRequest(1L, "ECONOMY",
-                List.of(new PassengerDetail("Rishabh", 22, null)));
+        BookingRequest request = new BookingRequest();
+        request.setFlightId(1L);
+        request.setSeatClass("ECONOMY");
+        request.setPassengers(List.of(testPassenger("Rishabh", 22, null)));
 
         assertThatThrownBy(() -> bookingService.createBooking(request, testUser()))
                 .isInstanceOf(InsufficientSeatsException.class)
@@ -106,8 +119,10 @@ class BookingServiceTest {
     void createBooking_flightNotFound_shouldThrow() {
         when(flightRepository.findById(999L)).thenReturn(Optional.empty());
 
-        BookingRequest request = new BookingRequest(999L, "ECONOMY",
-                List.of(new PassengerDetail("Test", 25, null)));
+        BookingRequest request = new BookingRequest();
+        request.setFlightId(999L);
+        request.setSeatClass("ECONOMY");
+        request.setPassengers(List.of(testPassenger("Test", 25, null)));
 
         assertThatThrownBy(() -> bookingService.createBooking(request, testUser()))
                 .isInstanceOf(ResourceNotFoundException.class);
@@ -124,8 +139,10 @@ class BookingServiceTest {
         when(flightRepository.findById(1L)).thenReturn(Optional.of(flight));
         when(seatRepository.findAvailableSeatsWithLock(1L, SeatClass.ECONOMY)).thenReturn(seats);
 
-        BookingRequest request = new BookingRequest(1L, "ECONOMY",
-                List.of(new PassengerDetail("Rishabh", 22, null))); // No passport
+        BookingRequest request = new BookingRequest();
+        request.setFlightId(1L);
+        request.setSeatClass("ECONOMY");
+        request.setPassengers(List.of(testPassenger("Rishabh", 22, null)));
 
         assertThatThrownBy(() -> bookingService.createBooking(request, testUser()))
                 .isInstanceOf(IllegalArgumentException.class)

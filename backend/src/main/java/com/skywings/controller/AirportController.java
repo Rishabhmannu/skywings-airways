@@ -38,11 +38,13 @@ public class AirportController {
     public ResponseEntity<List<Map<String, String>>> searchAirports(
             @RequestParam String q,
             @RequestParam(defaultValue = "15") int limit) {
-        if (q == null || q.length() < 2) {
+        if (q == null || q.trim().length() < 2 || q.trim().length() > 50) {
             return ResponseEntity.ok(List.of());
         }
+        if (limit < 1 || limit > 50) limit = 15;
 
-        String query = q.toLowerCase().trim();
+        // Strip any non-alphanumeric/space characters to prevent injection
+        String query = q.replaceAll("[^a-zA-Z0-9\\s]", "").toLowerCase().trim();
 
         // Score-based: exact code match first, then city starts-with, then contains
         List<Map<String, String>> results = airports.stream()

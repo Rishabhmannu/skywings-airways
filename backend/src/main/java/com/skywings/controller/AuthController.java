@@ -37,12 +37,24 @@ public class AuthController {
 
     @PostMapping("/verify-email")
     public ResponseEntity<AuthResponse> verifyEmail(@RequestBody Map<String, String> body) {
-        return ResponseEntity.ok(authService.verifyEmail(body.get("email"), body.get("otp")));
+        String email = body.get("email");
+        String otp = body.get("otp");
+        if (email == null || email.isBlank() || otp == null || otp.isBlank()) {
+            throw new IllegalArgumentException("Email and OTP are required");
+        }
+        if (!otp.matches("^\\d{6}$")) {
+            throw new IllegalArgumentException("OTP must be a 6-digit number");
+        }
+        return ResponseEntity.ok(authService.verifyEmail(email.trim(), otp.trim()));
     }
 
     @PostMapping("/resend-verification")
     public ResponseEntity<Map<String, String>> resendVerification(@RequestBody Map<String, String> body) {
-        authService.resendVerificationOtp(body.get("email"));
-        return ResponseEntity.ok(Map.of("message", "Verification OTP sent to " + body.get("email")));
+        String email = body.get("email");
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+        authService.resendVerificationOtp(email.trim());
+        return ResponseEntity.ok(Map.of("message", "Verification OTP sent"));
     }
 }

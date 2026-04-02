@@ -86,6 +86,20 @@ class PricingServiceTest {
     }
 
     @Test
+    void calculate_studentFare_appliesTenPercentDiscount() {
+        Flight flight = buildFlight("DOMESTIC", "6500", "15000", 2);
+
+        PricingService.PricingResult result = pricingService.calculate(flight, SeatClass.ECONOMY, 1, "STUDENT");
+
+        // 6500 * 2 * 1 = 13000, 10% discount = 1300, subtotal = 11700
+        // 5% tax on 11700 = 585, total = 12285
+        assertThat(result.subtotal()).isEqualByComparingTo("11700.00");
+        assertThat(result.discount()).isEqualByComparingTo("1300.00");
+        assertThat(result.fareType()).isEqualTo("STUDENT");
+        assertThat(result.total()).isEqualByComparingTo("12285.00");
+    }
+
+    @Test
     void calculatePenalty_returnsTwentyFivePercent() {
         BigDecimal total = new BigDecimal("13650.00");
 

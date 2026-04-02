@@ -10,11 +10,14 @@ import com.skywings.exception.InvalidPaymentException;
 import com.skywings.exception.ResourceNotFoundException;
 import com.skywings.repository.BookingRepository;
 import com.skywings.repository.PaymentRepository;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -31,8 +34,24 @@ class PaymentServiceTest {
     @Mock private PaymentRepository paymentRepository;
     @Mock private BookingRepository bookingRepository;
     @Mock private OtpService otpService;
+    @Mock private NotificationService notificationService;
 
     @InjectMocks private PaymentService paymentService;
+
+    @BeforeEach
+    void setUp() {
+        // Activate transaction synchronization for tests that use TransactionSynchronizationManager
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.initSynchronization();
+        }
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+    }
 
     private User testUser() {
         return User.builder().id(1L).name("Rishabh").email("r@test.com")

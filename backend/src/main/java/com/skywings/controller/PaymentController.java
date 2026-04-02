@@ -36,8 +36,15 @@ public class PaymentController {
     @PostMapping("/resend-otp")
     public ResponseEntity<PaymentResponse> resendOtp(@RequestBody Map<String, Object> body,
                                                       @AuthenticationPrincipal User user) {
-        Long bookingId = Long.valueOf(body.get("bookingId").toString());
+        Object bookingIdObj = body.get("bookingId");
+        if (bookingIdObj == null) {
+            throw new IllegalArgumentException("Booking ID is required");
+        }
+        Long bookingId = Long.valueOf(bookingIdObj.toString());
         String channel = body.getOrDefault("channel", "BOTH").toString();
+        if (!channel.matches("^(SMS|EMAIL|BOTH)$")) {
+            throw new IllegalArgumentException("Channel must be SMS, EMAIL, or BOTH");
+        }
         return ResponseEntity.ok(paymentService.resendOtp(bookingId, channel, user));
     }
 }

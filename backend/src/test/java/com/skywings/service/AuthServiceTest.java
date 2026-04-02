@@ -32,6 +32,9 @@ class AuthServiceTest {
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private JwtService jwtService;
     @Mock private AuthenticationManager authenticationManager;
+    @Mock private EmailService emailService;
+    @Mock private org.springframework.data.redis.core.RedisTemplate<String, String> redisTemplate;
+    @Mock private org.springframework.data.redis.core.ValueOperations<String, String> valueOps;
 
     @InjectMocks private AuthService authService;
 
@@ -42,6 +45,7 @@ class AuthServiceTest {
         when(userRepository.existsByEmail("r@test.com")).thenReturn(false);
         when(userRepository.existsByPhone("+911234567890")).thenReturn(false);
         when(passwordEncoder.encode("Pass@123")).thenReturn("hashed");
+        when(redisTemplate.opsForValue()).thenReturn(valueOps);
         when(userRepository.save(any(User.class))).thenAnswer(inv -> {
             User u = inv.getArgument(0);
             u.setId(1L);

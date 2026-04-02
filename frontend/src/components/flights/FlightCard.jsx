@@ -53,7 +53,6 @@ export default function FlightCard({ flight, source }) {
       toast.success('Flight selected! Choose your seats.');
       navigate(`/booking/${data.id}`);
     } catch (err) {
-      console.error('Import flight error:', err.response?.status, err.response?.data, err.message);
       if (err.response?.status === 403 || err.response?.status === 401) {
         toast.error('Please log in to book a flight.');
         navigate('/login');
