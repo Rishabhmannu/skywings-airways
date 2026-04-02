@@ -19,13 +19,17 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
+import org.springframework.core.io.ClassPathResource;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +38,29 @@ public class FlightService {
 
     private final FlightRepository flightRepository;
     private final SeatRepository seatRepository;
+    private final ObjectMapper objectMapper;
+
+    // Country lookup from airports.json — code → country
+    private Map<String, String> airportCountryMap = new HashMap<>();
+
+    @PostConstruct
+    public void loadAirportCountries() {
+        try {
+            var resource = new ClassPathResource("airports.json");
+            List<Map<String, String>> airports = objectMapper.readValue(
+                resource.getInputStream(), new TypeReference<>() {});
+            for (var a : airports) {
+                String code = a.get("code");
+                String country = a.get("country");
+                if (code != null && country != null) {
+                    airportCountryMap.put(code.toUpperCase(), country.toUpperCase());
+                }
+            }
+            log.info("Loaded country data for {} airports", airportCountryMap.size());
+        } catch (Exception e) {
+            log.warn("Could not load airports.json for country lookup: {}", e.getMessage());
+        }
+    }
 
     public List<FlightResponse> searchFlights(String origin, String dest, LocalDate date) {
         List<Flight> flights = flightRepository.searchFlights(
@@ -145,7 +172,7 @@ public class FlightService {
         // Determine flight type
         String origin = liveFlight.getOrigin() != null ? liveFlight.getOrigin() : "UNK";
         String dest = liveFlight.getDestination() != null ? liveFlight.getDestination() : "UNK";
-        boolean isInternational = !isIndianAirport(origin) || !isIndianAirport(dest);
+        boolean isInternational = !isSameCountry(origin, dest);
 
         // Parse times
         LocalDateTime depTime = parseFlightTime(liveFlight.getDepartureTime());
@@ -178,8 +205,11 @@ public class FlightService {
         return toFlightResponse(flight);
     }
 
-    private boolean isIndianAirport(String code) {
-        return java.util.Set.of("DEL", "BOM", "BLR", "MAA", "CCU", "HYD", "GOI", "JAI", "AMD", "PNQ", "COK", "GAU", "IXC", "SXR", "TRV", "VNS", "LKO", "PAT", "IXB", "RPR").contains(code.toUpperCase());
+    private boolean isSameCountry(String code1, String code2) {
+        String country1 = airportCountryMap.get(code1.toUpperCase());
+        String country2 = airportCountryMap.get(code2.toUpperCase());
+        if (country1 == null || country2 == null) return false;
+        return country1.equals(country2);
     }
 
     private LocalDateTime parseFlightTime(String timeStr) {

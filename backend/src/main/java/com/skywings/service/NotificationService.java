@@ -27,11 +27,11 @@ public class NotificationService {
 
     @Async
     @Transactional(readOnly = true)
-    public void sendBookingConfirmation(Booking detachedBooking) {
+    public void sendBookingConfirmation(Long bookingId) {
         try {
-            // Re-fetch with all relationships loaded (async runs outside original transaction)
-            Booking booking = bookingRepository.findById(detachedBooking.getId()).orElse(null);
-            if (booking == null) { log.error("Booking {} not found for confirmation email", detachedBooking.getId()); return; }
+            // Fetch fresh from DB (called after transaction commits, so status is CONFIRMED)
+            Booking booking = bookingRepository.findById(bookingId).orElse(null);
+            if (booking == null) { log.error("Booking {} not found for confirmation email", bookingId); return; }
 
             Flight flight = booking.getFlight();
             User user = booking.getUser();
@@ -53,15 +53,15 @@ public class NotificationService {
             log.info("Booking confirmation sent to {}", user.getEmail());
         } catch (Exception e) {
             log.error("Failed to send booking confirmation for booking {}: {}",
-                detachedBooking.getId(), e.getMessage(), e);
+                bookingId, e.getMessage(), e);
         }
     }
 
     @Async
     @Transactional(readOnly = true)
-    public void sendCancellationNotice(Booking detachedBooking) {
+    public void sendCancellationNotice(Long bookingId) {
         try {
-            Booking booking = bookingRepository.findById(detachedBooking.getId()).orElse(null);
+            Booking booking = bookingRepository.findById(bookingId).orElse(null);
             if (booking == null) return;
 
             Flight flight = booking.getFlight();
@@ -82,7 +82,7 @@ public class NotificationService {
             log.info("Cancellation notice sent to {}", user.getEmail());
         } catch (Exception e) {
             log.error("Failed to send cancellation notice for booking {}: {}",
-                detachedBooking.getId(), e.getMessage(), e);
+                bookingId, e.getMessage(), e);
         }
     }
 }

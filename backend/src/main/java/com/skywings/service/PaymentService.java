@@ -112,8 +112,15 @@ public class PaymentService {
 
         log.info("Payment completed for booking {} — txn: {}", bookingId, payment.getTransactionId());
 
-        // Send confirmation email with e-ticket (async — doesn't block response)
-        notificationService.sendBookingConfirmation(booking);
+        // Send confirmation email AFTER transaction commits (so DB has CONFIRMED status)
+        Long confirmedBookingId = booking.getId();
+        org.springframework.transaction.support.TransactionSynchronizationManager
+            .registerSynchronization(new org.springframework.transaction.support.TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    notificationService.sendBookingConfirmation(confirmedBookingId);
+                }
+            });
 
         return PaymentResponse.builder()
             .transactionId(payment.getTransactionId())
