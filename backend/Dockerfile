@@ -17,8 +17,8 @@ WORKDIR /app
 # Copy the built JAR
 COPY --from=build /app/target/*.jar app.jar
 
-# JVM tuning for free-tier containers (512MB RAM)
-ENV JAVA_OPTS="-Xmx384m -Xms256m -XX:+UseSerialGC -XX:MaxMetaspaceSize=128m"
+# Aggressive JVM tuning for 512MB free-tier containers
+ENV JAVA_OPTS="-Xmx256m -Xms128m -XX:+UseSerialGC -XX:MaxMetaspaceSize=96m -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Djava.security.egd=file:/dev/./urandom"
 
 EXPOSE 8080
 
