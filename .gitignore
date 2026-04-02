@@ -15,12 +15,16 @@ backend/target/
 *.swp
 .DS_Store
 
+# Claude Code
+.claude/
+
 # Environment
 .env
 *.env.local
 
 # Logs
 *.log
+nohup.out
 
 # Node / Frontend
 frontend/node_modules/
@@ -32,3 +36,7 @@ docker-compose.override.yml
 
 # OS
 Thumbs.db
+
+# Temp
+*.tmp
+*.bak
