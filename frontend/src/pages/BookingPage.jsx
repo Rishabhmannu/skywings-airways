@@ -3,6 +3,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
 import { Loader2, Plane, Users, CreditCard } from 'lucide-react';
+import SeatMap from '../components/booking/SeatMap';
 
 const emptyPassenger = { name: '', age: '', passportNumber: '', gender: '', dateOfBirth: '', nationality: '', mealPreference: 'NO_PREFERENCE', specialAssistance: 'NONE' };
 
@@ -23,6 +24,7 @@ export default function BookingPage() {
   const [seatClass, setSeatClass] = useState('ECONOMY');
   const [fareType, setFareType] = useState(searchParams.get('fareType') || 'REGULAR');
   const [passengers, setPassengers] = useState([{ ...emptyPassenger }]);
+  const [selectedSeats, setSelectedSeats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [step, setStep] = useState(1);
@@ -151,6 +153,22 @@ export default function BookingPage() {
             ))}
           </div>
 
+          {/* Visual Seat Map */}
+          {seats && (
+            <div className="mb-6">
+              <h2 className="text-lg font-bold mb-3">Choose Your Seats</h2>
+              <SeatMap
+                seats={seats.seats}
+                seatClass={seatClass}
+                maxSelectable={passengers.length}
+                onSelectionChange={setSelectedSeats}
+              />
+              <p className="text-xs text-gray-400 mt-2">
+                Seat selection is optional. Unselected seats will be auto-assigned.
+              </p>
+            </div>
+          )}
+
           <button onClick={() => setStep(2)}
             className="w-full bg-[#1e3a5f] text-white py-3 rounded-lg hover:bg-[#2a4d7a] transition font-semibold cursor-pointer border-none">
             Continue to Passenger Details
@@ -245,6 +263,9 @@ export default function BookingPage() {
           <div className="space-y-2 mb-4 text-sm">
             <p><strong>Class:</strong> {seatClass}</p>
             <p><strong>Fare:</strong> {FARE_TYPES.find(f => f.value === fareType)?.label} {FARE_TYPES.find(f => f.value === fareType)?.discount && `(${FARE_TYPES.find(f => f.value === fareType)?.discount})`}</p>
+            {selectedSeats.length > 0 && (
+              <p><strong>Seats:</strong> {selectedSeats.map(s => s.seatNumber).join(', ')}</p>
+            )}
             <p><strong>Passengers:</strong> {passengers.length}</p>
             {passengers.map((p, i) => (
               <div key={i} className="ml-4 text-gray-600 border-l-2 border-gray-200 pl-3 py-1">

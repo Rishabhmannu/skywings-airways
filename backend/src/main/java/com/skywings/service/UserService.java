@@ -2,6 +2,7 @@ package com.skywings.service;
 
 import com.skywings.dto.response.UserProfileResponse;
 import com.skywings.entity.User;
+import com.skywings.entity.enums.Role;
 import com.skywings.exception.ResourceNotFoundException;
 import com.skywings.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +48,21 @@ public class UserService {
         User user = userRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return toProfileResponse(user);
+    }
+
+    public UserProfileResponse updateRole(Long id, String role) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        user.setRole(Role.valueOf(role));
+        user = userRepository.save(user);
+        return toProfileResponse(user);
+    }
+
+    public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new ResourceNotFoundException("User not found");
+        }
+        userRepository.deleteById(id);
     }
 
     private UserProfileResponse toProfileResponse(User user) {

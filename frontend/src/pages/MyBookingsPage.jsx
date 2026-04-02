@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
 import toast from 'react-hot-toast';
-import { Loader2, Plane, Download, XCircle } from 'lucide-react';
+import { Loader2, Plane, Download, XCircle, RefreshCw } from 'lucide-react';
 
 const statusColors = {
   CONFIRMED: 'bg-green-100 text-green-700',
@@ -35,7 +35,13 @@ export default function MyBookingsPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-[#1e3a5f] mb-6">My Bookings</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-[#1e3a5f]">My Bookings</h1>
+        <button onClick={fetchBookings} disabled={loading}
+          className="flex items-center gap-1.5 text-sm text-[#1e3a5f] font-medium hover:underline bg-transparent border-none cursor-pointer disabled:opacity-50">
+          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Refresh
+        </button>
+      </div>
 
       {bookings.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-xl shadow-sm">

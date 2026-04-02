@@ -69,6 +69,22 @@ public class AdminController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
+    @PutMapping("/users/{id}/role")
+    public ResponseEntity<UserProfileResponse> updateUserRole(@PathVariable Long id,
+                                                               @RequestBody java.util.Map<String, String> body) {
+        String role = body.get("role");
+        if (role == null || (!role.equals("ADMIN") && !role.equals("PASSENGER"))) {
+            throw new IllegalArgumentException("Role must be ADMIN or PASSENGER");
+        }
+        return ResponseEntity.ok(userService.updateRole(id, role));
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<java.util.Map<String, String>> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok(java.util.Map.of("message", "User deleted"));
+    }
+
     @GetMapping("/flights")
     public ResponseEntity<?> getAllFlights() {
         return ResponseEntity.ok(flightService.getAllFlights());

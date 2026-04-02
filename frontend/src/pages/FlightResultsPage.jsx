@@ -17,6 +17,7 @@ export default function FlightResultsPage() {
   const [searchParams] = useSearchParams();
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [source, setSource] = useState('');
 
   const origin = searchParams.get('origin');
@@ -28,8 +29,14 @@ export default function FlightResultsPage() {
 
   useEffect(() => {
     if (!origin || !dest || !date) return;
+    fetchFlights();
+  }, [origin, dest, date, tripType, returnDate]);
+
+  const fetchFlights = () => {
+    if (!origin || !dest || !date) return;
     setLoading(true);
     setFlights([]);
+    setError(false);
 
     let url = `/flights/live-search?origin=${origin}&dest=${dest}&date=${date}&adults=1`;
     if (tripType === 'round_trip' && returnDate) {
@@ -41,9 +48,9 @@ export default function FlightResultsPage() {
         setFlights(r.data);
         setSource(r.data.length > 0 ? r.data[0].source : '');
       })
-      .catch(() => setFlights([]))
+      .catch(() => { setFlights([]); setError(true); })
       .finally(() => setLoading(false));
-  }, [origin, dest, date, tripType, returnDate]);
+  };
 
   const fareInfo = FARE_LABELS[fareType];
 
@@ -91,8 +98,12 @@ export default function FlightResultsPage() {
         ) : (
           <div className="text-center py-16">
             <AlertCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500 text-lg">No flights found for this route and date.</p>
-            <p className="text-sm text-gray-400 mt-2">Try different dates or airports.</p>
+            <p className="text-gray-500 text-lg">{error ? 'Failed to search flights.' : 'No flights found for this route and date.'}</p>
+            <p className="text-sm text-gray-400 mt-2">{error ? 'Please check your connection and try again.' : 'Try different dates or airports.'}</p>
+            <button onClick={fetchFlights}
+              className="mt-4 px-5 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-semibold cursor-pointer border-none hover:bg-[#2a4d7a]">
+              {error ? 'Retry Search' : 'Search Again'}
+            </button>
           </div>
         )}
       </div>
