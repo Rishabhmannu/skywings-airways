@@ -6,7 +6,7 @@ spring:
     name: skywings-airways
 
   datasource:
-    url: ${DATABASE_URL}
+    url: jdbc:${NEON_DATABASE_URL}
     driver-class-name: org.postgresql.Driver
     hikari:
       connection-timeout: 10000
@@ -22,7 +22,7 @@ spring:
 
   data:
     redis:
-      url: ${REDIS_URL:}
+      url: ${UPSTASH_REDIS_URL:}
 
   cache:
     type: ${CACHE_TYPE:simple}
