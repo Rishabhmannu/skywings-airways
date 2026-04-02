@@ -1,9 +1,12 @@
 package com.skywings.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -16,6 +19,7 @@ import java.time.Duration;
 
 @Configuration
 @EnableCaching
+@Slf4j
 public class RedisConfig {
 
     @Bean
@@ -28,7 +32,8 @@ public class RedisConfig {
     }
 
     @Bean
-    public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+    @Profile("!prod")
+    public CacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
             .entryTtl(Duration.ofMinutes(5))
             .serializeKeysWith(RedisSerializationContext.SerializationPair
@@ -40,5 +45,14 @@ public class RedisConfig {
         return RedisCacheManager.builder(connectionFactory)
             .cacheDefaults(config)
             .build();
+    }
+
+    @Bean
+    @Profile("prod")
+    public CacheManager prodCacheManager() {
+        // Use simple in-memory cache in production if Redis is not configured
+        // Upstash Redis can be added via REDIS_URL env var
+        log.info("Using production cache manager");
+        return new ConcurrentMapCacheManager();
     }
 }

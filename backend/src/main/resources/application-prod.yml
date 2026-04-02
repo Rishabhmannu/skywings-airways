@@ -1,0 +1,78 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: skywings-airways
+
+  datasource:
+    url: ${DATABASE_URL}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 10000
+      maximum-pool-size: 5
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  data:
+    redis:
+      url: ${REDIS_URL:}
+
+  cache:
+    type: ${CACHE_TYPE:simple}
+
+  mail:
+    host: smtp.sendgrid.net
+    port: 587
+    username: apikey
+    password: ${SENDGRID_API_KEY:placeholder}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  sql:
+    init:
+      mode: never
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiry: 1800000
+  refresh-token-expiry: 604800000
+
+twilio:
+  account-sid: ${TWILIO_ACCOUNT_SID:placeholder}
+  auth-token: ${TWILIO_AUTH_TOKEN:placeholder}
+  phone-number: ${TWILIO_PHONE_NUMBER:placeholder}
+
+serpapi:
+  api-key: ${SERPAPI_API_KEY:placeholder}
+
+skywings:
+  mail:
+    from-email: ${SENDGRID_FROM_EMAIL:noreply@skywings.com}
+    from-name: ${SENDGRID_FROM_NAME:SkyWings Airways}
+  booking:
+    expiry-minutes: 15
+    max-seats-per-booking: 6
+  otp:
+    length: 6
+    ttl-minutes: 5
+    max-attempts: 3
+    max-resends: 3
+  payment:
+    simulation-mode: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
