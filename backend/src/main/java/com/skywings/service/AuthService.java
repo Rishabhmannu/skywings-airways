@@ -73,11 +73,12 @@ public class AuthService {
         return response;
     }
 
+    @org.springframework.scheduling.annotation.Async
     public void sendVerificationOtp(String email) {
         String otp = generateOtp();
-        String redisKey = "verify_email:" + email;
+        String key = "verify_email:" + email;
 
-        otpStore.set(redisKey, otp, 10, TimeUnit.MINUTES);
+        otpStore.set(key, otp, 10, TimeUnit.MINUTES);
 
         try {
             emailService.sendOtpEmail(email, otp);
