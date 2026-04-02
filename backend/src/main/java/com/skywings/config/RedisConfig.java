@@ -23,6 +23,7 @@ import java.time.Duration;
 public class RedisConfig {
 
     @Bean
+    @Profile("!prod")
     public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
@@ -50,9 +51,7 @@ public class RedisConfig {
     @Bean
     @Profile("prod")
     public CacheManager prodCacheManager() {
-        // Use simple in-memory cache in production if Redis is not configured
-        // Upstash Redis can be added via REDIS_URL env var
-        log.info("Using production cache manager");
+        log.info("Using in-memory cache manager for production");
         return new ConcurrentMapCacheManager();
     }
 }

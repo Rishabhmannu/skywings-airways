@@ -5,6 +5,11 @@ spring:
   application:
     name: skywings-airways
 
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+
   datasource:
     url: jdbc:${NEON_DATABASE_URL}
     driver-class-name: org.postgresql.Driver
@@ -20,12 +25,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  data:
-    redis:
-      url: ${UPSTASH_REDIS_URL:}
-
   cache:
-    type: ${CACHE_TYPE:simple}
+    type: simple
 
   mail:
     host: smtp.sendgrid.net

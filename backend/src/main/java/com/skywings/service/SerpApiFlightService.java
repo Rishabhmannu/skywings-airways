@@ -3,12 +3,12 @@ package com.skywings.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.skywings.config.OtpStore;
 import com.skywings.dto.response.AmadeusFlightResponse;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -27,7 +27,7 @@ public class SerpApiFlightService {
     @Value("${serpapi.api-key}")
     private String apiKey;
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final OtpStore otpStore;
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -64,7 +64,7 @@ public class SerpApiFlightService {
 
         // Check Redis cache
         try {
-            String cached = redisTemplate.opsForValue().get(cacheKey);
+            String cached = otpStore.get(cacheKey);
             if (cached != null) {
                 log.debug("SerpAPI cache hit for {}", cacheKey);
                 return objectMapper.readValue(cached, new TypeReference<>() {});
@@ -114,7 +114,7 @@ public class SerpApiFlightService {
 
             // Cache for 10 minutes (SerpAPI has limited quota)
             try {
-                redisTemplate.opsForValue().set(cacheKey,
+                otpStore.set(cacheKey,
                         objectMapper.writeValueAsString(results), 10, TimeUnit.MINUTES);
             } catch (Exception e) {
                 log.debug("Cache write failed: {}", e.getMessage());

@@ -9,9 +9,9 @@ import com.skywings.exception.DuplicateResourceException;
 import com.skywings.exception.OtpVerificationException;
 import com.skywings.exception.UnauthorizedException;
 import com.skywings.repository.UserRepository;
+import com.skywings.config.OtpStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,7 +31,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final OtpStore otpStore;
 
     public AuthResponse signup(SignupRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -77,7 +77,7 @@ public class AuthService {
         String otp = generateOtp();
         String redisKey = "verify_email:" + email;
 
-        redisTemplate.opsForValue().set(redisKey, otp, 10, TimeUnit.MINUTES);
+        otpStore.set(redisKey, otp, 10, TimeUnit.MINUTES);
 
         try {
             emailService.sendOtpEmail(email, otp);
@@ -89,7 +89,7 @@ public class AuthService {
 
     public AuthResponse verifyEmail(String email, String otp) {
         String redisKey = "verify_email:" + email;
-        String storedOtp = redisTemplate.opsForValue().get(redisKey);
+        String storedOtp = otpStore.get(redisKey);
 
         if (storedOtp == null) {
             throw new OtpVerificationException("OTP expired. Please request a new one.");
@@ -105,7 +105,7 @@ public class AuthService {
         user.setEmailVerified(true);
         userRepository.save(user);
 
-        redisTemplate.delete(redisKey);
+        otpStore.delete(redisKey);
         log.info("Email verified for {}", email);
 
         AuthResponse response = buildAuthResponse(user);
