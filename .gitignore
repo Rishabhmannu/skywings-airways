@@ -35,6 +35,11 @@ frontend/.env.local
 # Docker
 docker-compose.override.yml
 
+# SSH keys
+*.key
+*.pub
+oracle-ssh*
+
 # OS
 Thumbs.db
 
