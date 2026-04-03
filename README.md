@@ -1,8 +1,23 @@
-# SkyWings Airways
+# ✈ SkyWings Airways
 
-A full-stack airline ticket booking system built with **Java 21, Spring Boot 3.3, and React 18**. Features real-time flight data from Google Flights, simulated payments with dual-channel OTP verification (SMS + Email), and PDF e-ticket generation with QR codes.
+<div align="center">
+
+![Java](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.3-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+
+**A full-stack airline ticket booking system with real-time Google Flights data, simulated payments with dual-channel OTP, and PDF e-ticket generation.**
+
+[Live App](https://skywings-airways.vercel.app) &bull; [API Docs (Swagger)](http://150.136.157.197:8080/swagger-ui.html) &bull; [Report Bug](https://github.com/Rishabhmannu/skywings-airways/issues)
+
+</div>
 
 > Originally built as a 3rd semester OOP coursework project (Java Swing), now completely rewritten into a production-grade full-stack application.
+
+---
 
 ## Screenshots
 
@@ -17,15 +32,90 @@ A full-stack airline ticket booking system built with **Java 21, Spring Boot 3.3
   </tr>
 </table>
 
+---
+
 ## Tech Stack
 
-| Layer | Technologies |
-|-------|-------------|
-| **Backend** | Java 21, Spring Boot 3.3, Spring Security (JWT), Spring Data JPA, PostgreSQL, Redis |
-| **Frontend** | React 18, Vite, Tailwind CSS, Axios, React Router |
-| **Integrations** | SerpAPI (Google Flights), Twilio (SMS OTP), SendGrid (Email OTP), OpenPDF + ZXing (PDF + QR) |
-| **DevOps** | Docker Compose, Shell scripts for start/shutdown |
-| **Testing** | JUnit 5, Mockito, MockMvc, Integration tests (55 tests) |
+### Backend
+![Java](https://img.shields.io/badge/Java_21-ED8B00?style=flat-square&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot_3.3-6DB33F?style=flat-square&logo=springboot&logoColor=white)
+![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=flat-square&logo=springsecurity&logoColor=white)
+![Hibernate](https://img.shields.io/badge/Hibernate-59666C?style=flat-square&logo=hibernate&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white)
+
+### Frontend
+![React](https://img.shields.io/badge/React_18-61DAFB?style=flat-square&logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+![React Router](https://img.shields.io/badge/React_Router-CA4245?style=flat-square&logo=reactrouter&logoColor=white)
+![Axios](https://img.shields.io/badge/Axios-5A29E4?style=flat-square&logo=axios&logoColor=white)
+
+### Integrations
+![Google](https://img.shields.io/badge/Google_Flights_(SerpAPI)-4285F4?style=flat-square&logo=google&logoColor=white)
+![Twilio](https://img.shields.io/badge/Twilio_SMS-F22F46?style=flat-square&logo=twilio&logoColor=white)
+![SendGrid](https://img.shields.io/badge/SendGrid_Email-51A9E3?style=flat-square&logo=twilio&logoColor=white)
+![OpenPDF](https://img.shields.io/badge/OpenPDF-FF6600?style=flat-square&logo=adobeacrobatreader&logoColor=white)
+![ZXing](https://img.shields.io/badge/ZXing_QR-000000?style=flat-square&logo=qrcode&logoColor=white)
+
+### Deployment
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white)
+![Oracle Cloud](https://img.shields.io/badge/Oracle_Cloud-F80000?style=flat-square&logo=oracle&logoColor=white)
+![Neon](https://img.shields.io/badge/Neon_PostgreSQL-00E599?style=flat-square&logo=postgresql&logoColor=black)
+
+### Testing
+![JUnit5](https://img.shields.io/badge/JUnit_5-25A162?style=flat-square&logo=junit5&logoColor=white)
+![Mockito](https://img.shields.io/badge/Mockito-78A641?style=flat-square)
+![55 Tests](https://img.shields.io/badge/55_Tests_Passing-brightgreen?style=flat-square)
+
+---
+
+## Deployment
+
+The application is deployed across multiple cloud services — all on **free tiers ($0/month)**:
+
+```
+                    ┌──────────────────────────────┐
+                    │     skywings-airways.         │
+    Users ────────▶ │       vercel.app              │ (React SPA)
+                    │     Vercel (CDN)              │
+                    └──────────┬───────────────────┘
+                               │ /api/* proxy
+                               ▼
+                    ┌──────────────────────────────┐
+                    │  Oracle Cloud VM             │
+                    │  150.136.157.197:8080         │ (Spring Boot)
+                    │  Always Free ARM/AMD          │
+                    │  Ubuntu 22.04 + Java 21       │
+                    └──────┬──────────┬────────────┘
+                           │          │
+                ┌──────────▼──┐  ┌────▼──────────┐
+                │ Neon        │  │ SendGrid      │
+                │ PostgreSQL  │  │ Email OTP     │
+                │ (Free tier) │  │ (100/day)     │
+                └─────────────┘  └───────────────┘
+                                 ┌───────────────┐
+                                 │ Twilio        │
+                                 │ SMS OTP       │
+                                 │ (Trial)       │
+                                 └───────────────┘
+                                 ┌───────────────┐
+                                 │ SerpAPI       │
+                                 │ Google Flights│
+                                 │ (100/month)   │
+                                 └───────────────┘
+```
+
+| Service | Provider | Tier | Purpose |
+|---------|----------|------|---------|
+| **Frontend** | ![Vercel](https://img.shields.io/badge/Vercel-000?style=flat-square&logo=vercel&logoColor=white) | Free | React SPA hosting, global CDN, API proxy |
+| **Backend** | ![Oracle](https://img.shields.io/badge/Oracle_Cloud-F80000?style=flat-square&logo=oracle&logoColor=white) | Always Free | Spring Boot on Ubuntu VM, 24/7 uptime |
+| **Database** | ![Neon](https://img.shields.io/badge/Neon-00E599?style=flat-square&logo=postgresql&logoColor=black) | Free (0.5 GB) | PostgreSQL 17, serverless, auto-suspend |
+| **Email** | ![SendGrid](https://img.shields.io/badge/SendGrid-51A9E3?style=flat-square&logo=twilio&logoColor=white) | Free (100/day) | OTP emails, booking confirmations |
+| **SMS** | ![Twilio](https://img.shields.io/badge/Twilio-F22F46?style=flat-square&logo=twilio&logoColor=white) | Trial credit | SMS OTP for payment verification |
+| **Flights** | ![SerpAPI](https://img.shields.io/badge/SerpAPI-4285F4?style=flat-square&logo=google&logoColor=white) | Free (100/mo) | Real-time Google Flights data |
+
+---
 
 ## Features
 
@@ -42,7 +132,9 @@ A full-stack airline ticket booking system built with **Java 21, Spring Boot 3.3
 - **Input validation** — Server-side validation on all endpoints, XSS sanitization, password strength enforcement
 - **Error handling** — Global exception handler, structured API error responses, 404 page
 
-## Quick Start
+---
+
+## Quick Start (Local Development)
 
 ### Prerequisites
 
@@ -54,7 +146,7 @@ A full-stack airline ticket booking system built with **Java 21, Spring Boot 3.3
 ### 1. Clone & configure
 
 ```bash
-git clone https://github.com/<your-username>/skywings-airways.git
+git clone https://github.com/Rishabhmannu/skywings-airways.git
 cd skywings-airways
 cp .env.example .env
 # Edit .env with your API keys (SendGrid, Twilio, SerpAPI)
@@ -82,6 +174,8 @@ This starts PostgreSQL + Redis (Docker), the Spring Boot backend, and the React 
 ./shutdown.sh
 ```
 
+---
+
 ## Test Accounts
 
 | Role | Email | Password |
@@ -99,15 +193,19 @@ This starts PostgreSQL + Redis (Docker), the Spring Boot backend, and the React 
 
 Use any future expiry (e.g., 12/28) and any 3-digit CVV.
 
+---
+
 ## API Keys Setup
 
 | Service | Free Tier | Get Keys |
 |---------|-----------|----------|
-| SendGrid | 100 emails/day | [sendgrid.com](https://sendgrid.com) — Use Single Sender Verification |
-| Twilio | ~1,900 SMS with trial credit | [twilio.com](https://twilio.com) — Add Verified Caller IDs for trial |
-| SerpAPI | 100 searches/month | [serpapi.com](https://serpapi.com) — Google Flights engine |
+| ![SendGrid](https://img.shields.io/badge/SendGrid-51A9E3?style=flat-square&logo=twilio&logoColor=white) | 100 emails/day | [sendgrid.com](https://sendgrid.com) — Use Single Sender Verification |
+| ![Twilio](https://img.shields.io/badge/Twilio-F22F46?style=flat-square&logo=twilio&logoColor=white) | ~1,900 SMS with trial credit | [twilio.com](https://twilio.com) — Add Verified Caller IDs for trial |
+| ![SerpAPI](https://img.shields.io/badge/SerpAPI-4285F4?style=flat-square&logo=google&logoColor=white) | 100 searches/month | [serpapi.com](https://serpapi.com) — Google Flights engine |
 
 All services work without API keys configured — the app falls back gracefully (email OTP logs to console, flights served from database, SMS skipped).
+
+---
 
 ## Project Structure
 
@@ -134,9 +232,10 @@ All services work without API keys configured — the app falls back gracefully 
 ├── start.sh                        Start all services with health checks
 ├── shutdown.sh                     Graceful shutdown of all services
 ├── .env.example                    Environment variable template
-├── IMPLEMENTATION_PLAN.md          Detailed architecture & design document
 └── README.md
 ```
+
+---
 
 ## Running Tests
 
@@ -147,12 +246,14 @@ mvn test
 
 55 tests covering: BookingService, PricingService (with fare discounts), AuthService, PaymentService, OtpService, LuhnValidator, AuthController, FlightController, and a full booking flow integration test.
 
+---
+
 ## Architecture
 
 ```
-React SPA ──→ Spring Boot REST API ──→ PostgreSQL
-   │                │                       │
-   │          JWT Auth Filter          JPA/Hibernate
+React SPA ──→ Spring Boot REST API ──→ PostgreSQL (Neon)
+   │                │
+   │          JWT Auth Filter
    │                │
    │         ┌──────┴──────┐
    │         │   Services  │
@@ -162,10 +263,21 @@ React SPA ──→ Spring Boot REST API ──→ PostgreSQL
    │         │ SendGrid    │──→ Email OTP + confirmations
    │         │ OpenPDF     │──→ Branded PDF e-tickets
    │         │ ZXing       │──→ QR codes (scannable booking data)
-   │         │ Redis       │──→ OTP storage + flight cache
+   │         │ OtpStore    │──→ In-memory OTP storage (Redis in dev)
    │         └─────────────┘
 ```
 
+---
+
 ## License
 
-Portfolio project by **Rishabh Kumar**. Built as a complete evolution of a 3rd semester OOP coursework project at IIIT Allahabad.
+Portfolio project by **Rishabh Kumar** ([@Rishabhmannu](https://github.com/Rishabhmannu)).
+Built as a complete evolution of a 3rd semester OOP coursework project at **IIIT Allahabad**.
+
+<div align="center">
+
+Built with Claude Code
+
+![Built with Claude](https://img.shields.io/badge/Built_with-Claude_Code-blueviolet?style=flat-square)
+
+</div>
